@@ -4,6 +4,10 @@
 Only the cards between <div class="grid"> and its closing tag are rewritten;
 the head, masthead and bio stay hand-edited in the HTML.
 
+filled-images/index.html is the same page with the other grid: every work
+fills its card at its own height, no mat, and the cards pack into columns
+like a pinboard. It is made from index.html each run, never edited by hand.
+
 Web copies in assets/works/ are made from the originals in Works/ when they
 are missing or older than the original.
 
@@ -109,6 +113,38 @@ def hang(works):
     return math.ceil(max(h for _, h in hung.values())) + 2 * MAT, hung
 
 
+# Packs the cards into columns. Each card spans as many 1px grid rows as it is
+# tall, so the grid's own auto-placement drops it into the column that frees up
+# first. Without script the cards still show, in plain rows.
+PACK = """<script>
+(() => {
+  const grid = document.querySelector(".grid--filled");
+  const cards = [...grid.children];
+  function pack() {
+    grid.classList.remove("is-packed");
+    cards.forEach(c => { c.style.gridRowEnd = ""; });
+    const gap = parseFloat(getComputedStyle(grid).rowGap) || 0;
+    grid.classList.add("is-packed");
+    cards.forEach(c => {
+      c.style.gridRowEnd = "span " + Math.ceil(c.getBoundingClientRect().height + gap);
+    });
+  }
+  pack();
+  addEventListener("resize", pack);
+  if (document.fonts) document.fonts.ready.then(pack);
+})();
+</script>
+"""
+
+
+def filled_page(html):
+    """index.html with the pinboard grid, one folder down."""
+    html = re.sub(r'(src|href)="(?!https?:|#)([^"]+)"', r'\1="../\2"', html)
+    html = re.sub(r'<div class="grid"[^>]*>', '<div class="grid grid--filled">', html)
+    html = re.sub(r' style="--w: [^"]*"', "", html)
+    return html.replace("</body>", PACK + "</body>")
+
+
 def main():
     data = json.loads((ROOT / "works.json").read_text())
     mat_h, hung = hang(data["works"])
@@ -122,6 +158,10 @@ def main():
     if n != 1:
         raise SystemExit("grid block not found in index.html")
     page.write_text(html)
+
+    filled = ROOT / "filled-images" / "index.html"
+    filled.parent.mkdir(exist_ok=True)
+    filled.write_text(filled_page(html))
 
     marked = [f"{w['title']}: {w['status']}" for w in data["works"] if w.get("status")]
     print(f"{len(data['works'])} cards written" + (f"; {', '.join(marked)}" if marked else ""))

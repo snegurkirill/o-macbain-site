@@ -231,6 +231,24 @@ body {
 .bio a:hover { text-decoration: underline; }
 .bio a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
 
+/* --- filled grid (filled-images/) ----------------------------------------
+   Every work fills its card at its own height, no mat. A script packs the
+   cards into columns: with 1px rows and no row gap, each card spans its own
+   height plus the gap, and auto-placement puts it in the column that ends
+   first. A wide work still spans two columns.
+   ------------------------------------------------------------------------- */
+
+.grid--filled .work img {
+  height: auto;
+  padding: 0;
+  background: none;
+}
+
+.grid--filled.is-packed {
+  grid-auto-rows: 1px;
+  row-gap: 0;
+}
+
 /* --- desktop -------------------------------------------------------------
    Same cards at the same 202px width, four across instead of two, hung off the
    128px left margin the source project uses. Design pixels become real pixels.
