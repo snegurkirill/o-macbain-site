@@ -7,10 +7,10 @@
    Source Sans caption style.
 
    One deliberate departure: the source crops every project image into a fixed
-   202:459 box. Paintings cannot be cropped, so each work is *fitted* into a
-   uniform 202:280 box instead and bottom-aligned, so the works stand on a
-   common baseline with their names aligned beneath — a gallery hang, and it
-   keeps the tidy rows the fixed box gives the source.
+   202:459 box. Paintings cannot be cropped, so each work sits whole on a light
+   mat of one size instead. The mat is as short as it can be: build.py sizes it
+   so the narrowest work fits with 8px all round, which puts every portrait and
+   square work at the same width with 8px at its sides.
    --------------------------------------------------------------------------- */
 
 :root {
@@ -27,6 +27,7 @@
   --ink-strong: #000;
   --link: #7eb0ff;
   --paper: #fff;
+  --mat: #f3f3f3;
 
   --status-reserved: #2f6bff;   /* blue dot */
   --status-sold: #ff3b30;       /* red dot */
@@ -100,57 +101,30 @@ body {
            calc(var(--edge) * var(--u));
 }
 
-/* --- masthead ------------------------------------------------------------ */
-
-/* Sits on the same 10px inset as the grid. There is no logo file: the name is
-   set in type, in black, the way the artist signs the canvases. */
-.masthead {
-  padding-inline: calc(var(--inset) * var(--u));
-  margin-bottom: calc(56 * var(--u));
-}
-
-.wordmark {
-  margin: 0;
-  color: var(--ink-strong);
-  font-size: calc(40 * var(--u));
-  line-height: 1;
-  font-weight: 600;
-  letter-spacing: -0.05em;
-  white-space: nowrap;
-}
-
-/* --- artist --------------------------------------------------------------
-   Same 10px inset and 410px measure as the grid.
+/* --- masthead ------------------------------------------------------------
+   The hand-drawn title tile, then the artist's portrait, both across the
+   410px measure of the grid. On a phone the two fill the first screen with the
+   top of the works showing below; the text about the artist closes the page.
    ------------------------------------------------------------------------- */
 
-.bio {
+.masthead {
   padding-inline: calc(var(--inset) * var(--u));
-  max-width: calc((410 + 2 * var(--inset)) * var(--u));
-  margin-bottom: calc(72 * var(--u));
+  margin-bottom: calc(64 * var(--u));
 }
 
-/* The source project sets 100% leading, but its longest block is four lines.
-   This is several paragraphs of Cyrillic prose, so it gets a reading leading. */
-.bio p {
-  margin: 0;
-  line-height: calc(26 * var(--u));
-}
-.bio p + p { margin-top: calc(20 * var(--u)); }
+.wordmark { margin: 0; }
 
-.bio__contacts { margin-top: calc(28 * var(--u)); }
-
-/* Portrait of the artist, a halftone print. One card wide, so it reads on the
-   same 202px column as the works below. */
-.bio__portrait {
+/* The tile is charcoal on white. multiply drops its white into the page, so
+   no edge of the image shows. */
+.wordmark img,
+.portrait {
   display: block;
-  width: calc(202 * var(--u));
+  width: calc(410 * var(--u));
   height: auto;
-  margin-bottom: calc(28 * var(--u));
 }
+.wordmark img { mix-blend-mode: multiply; }
 
-.bio a { color: var(--link); text-decoration: none; }
-.bio a:hover { text-decoration: underline; }
-.bio a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.portrait { margin-top: calc(48 * var(--u)); }
 
 /* --- works grid ---------------------------------------------------------- */
 
@@ -166,20 +140,20 @@ body {
 
 .work { margin: 0; }
 
-/* Uniform box, work fitted inside and sat on the bottom edge. `contain` keeps
-   every canvas whole; `50% 100%` puts them all on one baseline, so a landscape
-   diptych and a tall portrait still line their names up across the row. */
+/* The mat is the image's own padding and background, so there is no wrapper.
+   Its height (--mat-h, design px) is written onto .grid by build.py. */
 .work img {
   display: block;
   width: 100%;
-  height: calc(280 * var(--u));   /* beats the height attribute's hint */
+  height: calc(var(--mat-h) * var(--u));   /* beats the height attribute's hint */
+  padding: calc(8 * var(--u));
+  background: var(--mat);
   object-fit: contain;
-  object-position: 50% 100%;
 }
 
-/* A horizontal work (ratio > 1.4 — the 70×200 eyes and the landscape
-   "На Димона…") takes both columns and keeps its own height, so it is not
-   stranded in a portrait box. `span 2` holds on desktop's four columns too. */
+/* A horizontal work (ratio > 1.4: the 70×200 eyes and the landscape
+   "На Димона…") takes both columns. Alone in its row on a phone, its mat
+   hugs it with the same 8px. `span 2` holds on desktop's four columns too. */
 .work--wide { grid-column: span 2; }
 .work--wide img { height: auto; }
 
@@ -222,6 +196,30 @@ body {
 .work__status--reserved { --dot: var(--status-reserved); }
 .work__status--sold     { --dot: var(--status-sold); }
 
+/* --- artist --------------------------------------------------------------
+   After the works. Same 10px inset and 410px measure as the grid.
+   ------------------------------------------------------------------------- */
+
+.bio {
+  padding-inline: calc(var(--inset) * var(--u));
+  max-width: calc((410 + 2 * var(--inset)) * var(--u));
+  margin-top: calc(72 * var(--u));
+}
+
+/* The source project sets 100% leading, but its longest block is four lines.
+   This is several paragraphs of Cyrillic prose, so it gets a reading leading. */
+.bio p {
+  margin: 0;
+  line-height: calc(26 * var(--u));
+}
+.bio p + p { margin-top: calc(20 * var(--u)); }
+
+.bio__contacts { margin-top: calc(28 * var(--u)); }
+
+.bio a { color: var(--link); text-decoration: none; }
+.bio a:hover { text-decoration: underline; }
+.bio a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
 /* --- desktop -------------------------------------------------------------
    Same cards at the same 202px width, four across instead of two, hung off the
    128px left margin the source project uses. Design pixels become real pixels.
@@ -245,7 +243,7 @@ body {
     width: max-content;
   }
 
-  /* Here a wide work shares its row with two portrait cards, so it goes back
-     into the common box and stands on the same baseline as its neighbours. */
-  .work--wide img { height: calc(280 * var(--u)); }
+  /* Here a wide work shares its row with two portrait cards, so its mat takes
+     their height and the row stays even; the work keeps 8px at its sides. */
+  .work--wide img { height: calc(var(--mat-h) * var(--u)); }
 }

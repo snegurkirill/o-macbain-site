@@ -11,6 +11,7 @@ To mark a work, set its "status" in works.json to "reserved" or "sold"
 (or null to clear it), then run:  python3 build.py
 """
 import json
+import math
 import re
 from pathlib import Path
 
@@ -24,6 +25,8 @@ SHORT_WORD = re.compile(r"(?<![\w-])(без|в|во|для|до|за|из|изо
                         r"от|ото|перед|по|под|при|про|с|со|у|через|"
                         r"а|и|но|или|да|ни|не)\s+", re.I)
 WIDE_RATIO = 1.4  # wider than this spans both columns
+MAT = 8           # least margin around a work on its mat, design px
+CARD = 202        # card width, design px
 SIDE = 900        # longest side of a web copy, px
 SIDE_WIDE = 1400  # a wide work is shown at twice the width
 
@@ -73,14 +76,29 @@ def card(work, statuses):
         </figure>"""
 
 
+def mat_height(works):
+    """Shortest mat that holds every non-wide work at the full inner width.
+
+    The narrowest work sets it: at CARD - 2*MAT wide it is the tallest, and it
+    gets exactly MAT above and below. Every other work fits with room to spare.
+    """
+    ratios = []
+    for w in works:
+        width, height = Image.open(web_copy(w)).size
+        if width / height <= WIDE_RATIO:
+            ratios.append(width / height)
+    return math.ceil((CARD - 2 * MAT) / min(ratios)) + 2 * MAT
+
+
 def main():
     data = json.loads((ROOT / "works.json").read_text())
     cards = "\n".join(card(w, data["statuses"]) for w in data["works"])
+    grid = f'<div class="grid" style="--mat-h: {mat_height(data["works"])}">\n'
 
     page = ROOT / "index.html"
     html = page.read_text()
-    html, n = re.subn(r'(<div class="grid">\n).*?(\n      </div>\n  </main>)',
-                      lambda m: m.group(1) + cards + m.group(2), html, flags=re.S)
+    html, n = re.subn(r'<div class="grid"[^>]*>\n.*?(\n      </div>\n  </main>)',
+                      lambda m: grid + cards + m.group(1), html, flags=re.S)
     if n != 1:
         raise SystemExit("grid block not found in index.html")
     page.write_text(html)
