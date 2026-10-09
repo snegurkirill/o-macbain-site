@@ -1,0 +1,9 @@
+.DS_Store
+.claude/
+
+# Kept locally, never published:
+#   source/   the Google Doc export (.docx) the catalogue was read from
+#   Works/    the largest copies the doc holds (2048px); the page ships
+#             900px copies (1400px for wide works) from assets/works/
+/source/
+/Works/

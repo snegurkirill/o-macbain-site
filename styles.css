@@ -1,0 +1,242 @@
+/* ---------------------------------------------------------------------------
+   O. MACBAIN — Olga Macbain, works catalogue
+
+   Same system as the Andrey Novitsky catalogue, itself ported from the
+   "Kirill Snegur — site": same design-pixel unit, same 430px mobile frame,
+   same two-column project grid (202 + 6 + 202 inside a 10px inset), same
+   Source Sans caption style.
+
+   One deliberate departure: the source crops every project image into a fixed
+   202:459 box. Paintings cannot be cropped, so each work is *fitted* into a
+   uniform 202:280 box instead and bottom-aligned, so the works stand on a
+   common baseline with their names aligned beneath — a gallery hang, and it
+   keeps the tidy rows the fixed box gives the source.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* 1 design pixel. Fills the screen up to 430px, then keeps scaling to a
+     1.2x cap so the column does not become oversized on small tablets. */
+  --u: min(calc(100vw / 430), 1.2px);
+
+  --edge: 0;      /* page left margin, design px */
+  --inset: 10;    /* side padding of the works grid, design px */
+  --pad-top: 40;
+  --pad-bottom: 97;
+
+  --ink: #a9a9a9;
+  --ink-strong: #000;
+  --link: #7eb0ff;
+  --paper: #fff;
+
+  --status-reserved: #2f6bff;   /* blue dot */
+  --status-sold: #ff3b30;       /* red dot */
+
+  --font: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+  --font-caption: "Source Sans Pro", "Source Sans 3", system-ui,
+                  "Helvetica Neue", Arial, sans-serif;
+
+  --fs-body: 20;
+  --fs-caption: 14;
+  --wt-body: 420;   /* variable wght axis, not a static weight */
+  --wt-caption: 400;
+  --track-body: -0.04em;
+  --track-caption: -0.05em;
+}
+
+/* Both faces self-hosted (SIL OFL), no third-party request. Latin and Cyrillic
+   are separate subsets with unicode-range. The work titles mix both scripts,
+   so this page pulls all four files. Source Sans 3 is the variable file, so
+   wght 420 is a real interpolation, not a synthesised weight. */
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("assets/source-sans-3-latin.woff2") format("woff2-variations");
+  font-weight: 200 900; font-style: normal; font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("assets/source-sans-3-cyrillic.woff2") format("woff2-variations");
+  font-weight: 200 900; font-style: normal; font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Source Sans Pro";
+  src: url("assets/source-sans-pro-latin.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Source Sans Pro";
+  src: url("assets/source-sans-pro-cyrillic.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: calc(var(--fs-body) * var(--u));
+  line-height: calc(var(--fs-body) * var(--u));   /* Regular-20: 100% */
+  font-weight: var(--wt-body);
+  letter-spacing: var(--track-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  width: calc(430 * var(--u));
+  margin-inline: auto;
+  padding: calc(var(--pad-top) * var(--u)) 0 calc(var(--pad-bottom) * var(--u))
+           calc(var(--edge) * var(--u));
+}
+
+/* --- masthead ------------------------------------------------------------ */
+
+/* Sits on the same 10px inset as the grid. There is no logo file: the name is
+   set in type, in black, the way the artist signs the canvases. */
+.masthead {
+  padding-inline: calc(var(--inset) * var(--u));
+  margin-bottom: calc(56 * var(--u));
+}
+
+.wordmark {
+  margin: 0;
+  color: var(--ink-strong);
+  font-size: calc(40 * var(--u));
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+}
+
+/* --- artist --------------------------------------------------------------
+   Same 10px inset and 410px measure as the grid.
+   ------------------------------------------------------------------------- */
+
+.bio {
+  padding-inline: calc(var(--inset) * var(--u));
+  max-width: calc((410 + 2 * var(--inset)) * var(--u));
+  margin-bottom: calc(72 * var(--u));
+}
+
+/* The source project sets 100% leading, but its longest block is four lines.
+   This is several paragraphs of Cyrillic prose, so it gets a reading leading. */
+.bio p {
+  margin: 0;
+  line-height: calc(26 * var(--u));
+}
+.bio p + p { margin-top: calc(20 * var(--u)); }
+
+.bio__contacts { margin-top: calc(28 * var(--u)); }
+
+.bio a { color: var(--link); text-decoration: none; }
+.bio a:hover { text-decoration: underline; }
+.bio a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* --- works grid ---------------------------------------------------------- */
+
+.content { padding-inline: calc(var(--inset) * var(--u)); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, calc(202 * var(--u)));
+  column-gap: calc(6 * var(--u));
+  row-gap: calc(34 * var(--u));
+  align-items: start;
+}
+
+.work { margin: 0; }
+
+/* Uniform box, work fitted inside and sat on the bottom edge. `contain` keeps
+   every canvas whole; `50% 100%` puts them all on one baseline, so a landscape
+   diptych and a tall portrait still line their names up across the row. */
+.work img {
+  display: block;
+  width: 100%;
+  height: calc(280 * var(--u));   /* beats the height attribute's hint */
+  object-fit: contain;
+  object-position: 50% 100%;
+}
+
+/* A horizontal work (ratio > 1.4 — the 70×200 eyes and the landscape
+   "На Димона…") takes both columns and keeps its own height, so it is not
+   stranded in a portrait box. `span 2` holds on desktop's four columns too. */
+.work--wide { grid-column: span 2; }
+.work--wide img { height: auto; }
+
+.work figcaption {                       /* Regular-14 */
+  font-family: var(--font-caption);
+  font-size: calc(var(--fs-caption) * var(--u));
+  line-height: normal;                   /* AUTO in Figma */
+  font-weight: var(--wt-caption);
+  letter-spacing: var(--track-caption);
+  margin-top: calc(7 * var(--u));
+  text-wrap: balance;
+}
+
+/* Card caption, top to bottom: title / price / size, materials / status.
+   The last two are secondary: 2px under the caption size, 120% leading. */
+.work figcaption > span { display: block; }
+
+.work__price {
+  margin-top: calc(2 * var(--u));
+  font-variant-numeric: tabular-nums;
+}
+
+.work__details,
+.work__status {
+  font-size: calc((var(--fs-caption) - 2) * var(--u));
+  line-height: 1.2;
+}
+
+.work__details { margin-top: calc(6 * var(--u)); }
+.work__status  { margin-top: calc(4 * var(--u)); }
+
+.work__status::before {
+  content: "•";
+  color: var(--dot);
+  font-size: 1.6em;          /* the bare glyph is a speck at 12px */
+  line-height: 0;
+  vertical-align: -0.08em;
+  margin-right: 0.2em;
+}
+.work__status--reserved { --dot: var(--status-reserved); }
+.work__status--sold     { --dot: var(--status-sold); }
+
+/* --- desktop -------------------------------------------------------------
+   Same cards at the same 202px width, four across instead of two, hung off the
+   128px left margin the source project uses. Design pixels become real pixels.
+   --------------------------------------------------------------------------- */
+
+@media (min-width: 1000px) {
+  :root {
+    --u: 1px;
+    --edge: 128;
+    --inset: 0;
+    --pad-top: 99;
+    --pad-bottom: 96;
+  }
+
+  .page { width: auto; margin-inline: 0; }
+
+  .masthead { margin-bottom: calc(80 * var(--u)); }
+
+  .grid {
+    grid-template-columns: repeat(4, calc(202 * var(--u)));
+    width: max-content;
+  }
+
+  /* Here a wide work shares its row with two portrait cards, so it goes back
+     into the common box and stands on the same baseline as its neighbours. */
+  .work--wide img { height: calc(280 * var(--u)); }
+}
