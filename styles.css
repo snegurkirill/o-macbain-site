@@ -20,7 +20,7 @@
 
   --edge: 0;      /* page left margin, design px */
   --inset: 10;    /* side padding of the works grid, design px */
-  --pad-top: 40;
+  --pad-top: 160;
   --pad-bottom: 97;
 
   --ink: #a9a9a9;
@@ -103,13 +103,14 @@ body {
 
 /* --- masthead ------------------------------------------------------------
    The hand-drawn title tile, then the artist's portrait, each one card wide
-   (202px, never past 225px), with long equal pauses around the portrait. On a
-   430x932 phone the first work, the 70×200 eyes, still ends inside the screen.
+   (202px, never past 225px), centred over the grid, with equal pauses around
+   the portrait. On a 430x932 phone the first work, the 70×200 eyes, ends at
+   863px, inside the screen; extra room at the top comes out of the pauses.
    ------------------------------------------------------------------------- */
 
 .masthead {
   padding-inline: calc(var(--inset) * var(--u));
-  margin-bottom: calc(164 * var(--u));
+  margin-bottom: calc(104 * var(--u));
 }
 
 .wordmark { margin: 0; }
@@ -122,10 +123,11 @@ body {
   width: calc(202 * var(--u));
   max-width: 225px;
   height: auto;
+  margin-inline: auto;
 }
 .wordmark img { mix-blend-mode: multiply; }
 
-.portrait { margin-top: calc(164 * var(--u)); }
+.portrait { margin-top: calc(104 * var(--u)); }
 
 /* --- works grid ---------------------------------------------------------- */
 
@@ -231,11 +233,14 @@ body {
     --u: 1px;
     --edge: 128;
     --inset: 0;
-    --pad-top: 99;
+    --pad-top: 219;
     --pad-bottom: 96;
   }
 
   .page { width: auto; margin-inline: 0; }
+
+  /* As wide as the four-column grid, so the intro centres over the works. */
+  .masthead { width: calc((4 * 202 + 3 * 6) * var(--u)); }
 
   .grid {
     grid-template-columns: repeat(4, calc(202 * var(--u)));
