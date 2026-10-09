@@ -256,10 +256,11 @@ body {
 
 .grid--filled .work figcaption { padding-bottom: calc(34 * var(--u)); }
 
-/* "stretch": true in works.json: drawn to the row's full height. */
+/* "stretch": <id> in works.json: drawn in that work's proportions (--stretch,
+   set on the card by build.py), so it stands as tall as it. A plain ratio,
+   not a percentage height: Safari resolves the latter against the wrong box. */
 .grid--filled .work--stretch img {
-  align-self: stretch;
-  height: 100%;
+  aspect-ratio: var(--stretch);
   object-fit: fill;
 }
 

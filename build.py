@@ -8,8 +8,8 @@ filled-images/index.html is the same page with the other grid: every work
 fills its card's width at its own height, no mat, in plain rows. It is made
 from index.html each run, never edited by hand.
 
-A work with "stretch": true in works.json is stretched to its row's height
-on that page.
+A work with "stretch": <id> in works.json is drawn on that page in the
+proportions of work <id>, so it matches that work's height beside it.
 
 Web copies in assets/works/ are made from the originals in Works/ when they
 are missing or older than the original.
@@ -55,7 +55,7 @@ def web_copy(work):
     return copy
 
 
-def card(work, statuses, hung):
+def card(work, statuses, hung, by_id):
     copy = web_copy(work)
     src = copy.relative_to(ROOT).as_posix()
     w, h = Image.open(copy).size
@@ -64,8 +64,11 @@ def card(work, statuses, hung):
     details = esc(f"{work['size']}, {work['medium']}").replace(" см", NB + "см")
     price = f"{work['price']:,}".replace(",", NB) + NB + "₽"
     wide = " work--wide" if w / h > WIDE_RATIO else ""
+    stretch = ""
     if work.get("stretch"):
+        sw, sh = Image.open(web_copy(by_id[work["stretch"]])).size
         wide += " work--stretch"
+        stretch = f' style="--stretch: {sw} / {sh}"'
     scale = ""
     if work["id"] in hung:
         sw, sh = hung[work["id"]]
@@ -79,7 +82,7 @@ def card(work, statuses, hung):
         status = (f'\n            <span class="work__status work__status--{key}">'
                   f"{statuses[key]}</span>")
 
-    return f"""        <figure class="work{wide}">
+    return f"""        <figure class="work{wide}"{stretch}>
           <img src="{src}" alt="{title}" width="{w}" height="{h}"{scale} loading="lazy" decoding="async">
           <figcaption>
             <span class="work__title">{title}</span>
@@ -129,7 +132,8 @@ def filled_page(html):
 def main():
     data = json.loads((ROOT / "works.json").read_text())
     mat_h, hung = hang(data["works"])
-    cards = "\n".join(card(w, data["statuses"], hung) for w in data["works"])
+    by_id = {w["id"]: w for w in data["works"]}
+    cards = "\n".join(card(w, data["statuses"], hung, by_id) for w in data["works"])
     grid = f'<div class="grid" style="--mat-h: {mat_h}">\n'
 
     page = ROOT / "index.html"

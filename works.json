@@ -44,7 +44,7 @@
       "image": "Works/03-svidetel-iz-fryazino.jpg",
       "sourceImage": "image3.jpg",
       "status": null,
-      "stretch": true
+      "stretch": 2
     },
     {
       "id": 4,
