@@ -18,6 +18,9 @@ from PIL import Image
 
 ROOT = Path(__file__).parent
 NB = " "
+# Russian prepositions, bound to the next word so none hangs at a line end
+PREPOSITION = re.compile(r"(?<![\w-])(без|в|во|для|до|за|из|изо|к|ко|на|над|о|об|обо|"
+                         r"от|ото|перед|по|под|при|про|с|со|у|через)\s+", re.I)
 WIDE_RATIO = 1.4  # wider than this spans both columns
 SIDE = 900        # longest side of a web copy, px
 SIDE_WIDE = 1400  # a wide work is shown at twice the width
@@ -45,6 +48,7 @@ def card(work, statuses):
     src = copy.relative_to(ROOT).as_posix()
     w, h = Image.open(copy).size
     title = esc(work["title"] + (f" ({work['note']})" if work["note"] else ""))
+    title = PREPOSITION.sub(rf"\1{NB}", title)
     details = esc(f"{work['size']}, {work['medium']}").replace(" см", NB + "см")
     price = f"{work['price']:,}".replace(",", NB) + NB + "₽"
     wide = " work--wide" if w / h > WIDE_RATIO else ""
