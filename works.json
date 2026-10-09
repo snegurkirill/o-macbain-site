@@ -58,7 +58,8 @@
       "price": 70000,
       "image": "Works/04-kompyuter-verni-vsyo-obratno.jpg",
       "sourceImage": "image9.jpg",
-      "status": null
+      "status": null,
+      "stretch": 5
     },
     {
       "id": 5,
