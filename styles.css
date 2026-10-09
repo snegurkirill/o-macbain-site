@@ -102,31 +102,30 @@ body {
 }
 
 /* --- masthead ------------------------------------------------------------
-   The hand-drawn title tile, then the artist's portrait, both as wide as the
-   screen allows, up to 450px. On a phone the two fill the first screen with the
-   top of the works showing below; the text about the artist closes the page.
+   The hand-drawn title tile, then the artist's portrait, each one card wide
+   (202px, never past 225px), with long equal pauses around the portrait. On a
+   430x932 phone the first work, the 70×200 eyes, still ends inside the screen.
    ------------------------------------------------------------------------- */
 
 .masthead {
   padding-inline: calc(var(--inset) * var(--u));
-  margin-bottom: calc(64 * var(--u));
+  margin-bottom: calc(164 * var(--u));
 }
 
 .wordmark { margin: 0; }
 
-/* Screen-wide inside the inset, but never past 450px on a tablet or desktop.
-   The tile is charcoal on white; multiply drops its white into the page, so
+/* The tile is charcoal on white; multiply drops its white into the page, so
    no edge of the image shows. */
 .wordmark img,
 .portrait {
   display: block;
-  width: 100%;
-  max-width: 450px;
+  width: calc(202 * var(--u));
+  max-width: 225px;
   height: auto;
 }
 .wordmark img { mix-blend-mode: multiply; }
 
-.portrait { margin-top: calc(48 * var(--u)); }
+.portrait { margin-top: calc(164 * var(--u)); }
 
 /* --- works grid ---------------------------------------------------------- */
 
@@ -237,8 +236,6 @@ body {
   }
 
   .page { width: auto; margin-inline: 0; }
-
-  .masthead { margin-bottom: calc(80 * var(--u)); }
 
   .grid {
     grid-template-columns: repeat(4, calc(202 * var(--u)));
