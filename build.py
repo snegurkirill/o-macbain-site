@@ -4,12 +4,13 @@
 Only the cards between <div class="grid"> and its closing tag are rewritten;
 the head, masthead and bio stay hand-edited in the HTML.
 
-filled-images/index.html is the same page with the other grid: every work
-fills its card's width at its own height, no mat, in plain rows. It is made
-from index.html each run, never edited by hand.
+index.html shows every work filling its card's width at its own height, no
+mat, in plain rows. A work with "stretch": <id> in works.json is drawn there
+in the proportions of work <id>, so it matches that work's height beside it.
 
-A work with "stretch": <id> in works.json is drawn on that page in the
-proportions of work <id>, so it matches that work's height beside it.
+real-size-images/index.html is the same page with the other grid: every work
+on a mat of one size, scaled by its real size. It is made from index.html each
+run, never edited by hand.
 
 Web copies in assets/works/ are made from the originals in Works/ when they
 are missing or older than the original.
@@ -121,12 +122,13 @@ def hang(works):
     return math.ceil(max(h for _, h in hung.values())) + 2 * MAT, hung
 
 
-def filled_page(html):
-    """index.html with the pinboard grid, one folder down."""
-    html = re.sub(r'(src|href)="(?!https?:|#)([^"]+)"', r'\1="../\2"', html)
-    html = re.sub(r'<div class="grid"[^>]*>', '<div class="grid grid--filled">', html)
-    html = re.sub(r' style="--w: [^"]*"', "", html)
-    return html
+GRID = re.compile(r'<div class="grid[^"]*"[^>]*>\n.*?(\n      </div>\n  </main>)', re.S)
+
+
+def real_size_page(html, grid, cards):
+    """index.html with the mat grid, one folder down."""
+    html = GRID.sub(lambda m: grid + cards + m.group(1), html)
+    return re.sub(r'(src|href)="(?!https?:|#)([^"]+)"', r'\1="../\2"', html)
 
 
 def main():
@@ -134,19 +136,18 @@ def main():
     mat_h, hung = hang(data["works"])
     by_id = {w["id"]: w for w in data["works"]}
     cards = "\n".join(card(w, data["statuses"], hung, by_id) for w in data["works"])
-    grid = f'<div class="grid" style="--mat-h: {mat_h}">\n'
 
     page = ROOT / "index.html"
     html = page.read_text()
-    html, n = re.subn(r'<div class="grid"[^>]*>\n.*?(\n      </div>\n  </main>)',
-                      lambda m: grid + cards + m.group(1), html, flags=re.S)
+    filled = '<div class="grid grid--filled">\n' + re.sub(r' style="--w: [^"]*"', "", cards)
+    html, n = GRID.subn(lambda m: filled + m.group(1), html)
     if n != 1:
         raise SystemExit("grid block not found in index.html")
     page.write_text(html)
 
-    filled = ROOT / "filled-images" / "index.html"
-    filled.parent.mkdir(exist_ok=True)
-    filled.write_text(filled_page(html))
+    real = ROOT / "real-size-images" / "index.html"
+    real.parent.mkdir(exist_ok=True)
+    real.write_text(real_size_page(html, f'<div class="grid" style="--mat-h: {mat_h}">\n', cards))
 
     marked = [f"{w['title']}: {w['status']}" for w in data["works"] if w.get("status")]
     print(f"{len(data['works'])} cards written" + (f"; {', '.join(marked)}" if marked else ""))
