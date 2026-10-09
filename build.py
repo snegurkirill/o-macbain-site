@@ -48,7 +48,7 @@ def web_copy(work):
     return copy
 
 
-def card(work, statuses):
+def card(work, statuses, hung):
     copy = web_copy(work)
     src = copy.relative_to(ROOT).as_posix()
     w, h = Image.open(copy).size
@@ -57,6 +57,10 @@ def card(work, statuses):
     details = esc(f"{work['size']}, {work['medium']}").replace(" см", NB + "см")
     price = f"{work['price']:,}".replace(",", NB) + NB + "₽"
     wide = " work--wide" if w / h > WIDE_RATIO else ""
+    scale = ""
+    if work["id"] in hung:
+        sw, sh = hung[work["id"]]
+        scale = f' style="--w: {sw:.1f}; --h: {sh:.1f}"'
 
     status = ""
     if work.get("status"):
@@ -67,7 +71,7 @@ def card(work, statuses):
                   f"{statuses[key]}</span>")
 
     return f"""        <figure class="work{wide}">
-          <img src="{src}" alt="{title}" width="{w}" height="{h}" loading="lazy" decoding="async">
+          <img src="{src}" alt="{title}" width="{w}" height="{h}"{scale} loading="lazy" decoding="async">
           <figcaption>
             <span class="work__title">{title}</span>
             <span class="work__price">{price}</span>
@@ -76,24 +80,40 @@ def card(work, statuses):
         </figure>"""
 
 
-def mat_height(works):
-    """Shortest mat that holds every non-wide work at the full inner width.
+def long_side_cm(work):
+    return max(float(n.replace(",", ".")) for n in re.findall(r"\d+(?:[.,]\d+)?", work["size"]))
 
-    The narrowest work sets it: at CARD - 2*MAT wide it is the tallest, and it
-    gets exactly MAT above and below. Every other work fits with room to spare.
+
+def hang(works):
+    """Size every one-column work by its real size, on a mat that holds them all.
+
+    A work's long side on screen grows with the square root of its long side
+    in cm, so a bigger canvas reads bigger without the small ones shrinking to
+    stamps. One factor serves every work: the largest that keeps the widest
+    of them inside the mat's CARD - 2*MAT. The mat is then as short as the
+    tallest work plus MAT above and below.
+
+    Returns the mat height and {id: (width, height)} on screen, design px.
     """
-    ratios = []
+    shapes = {}
     for w in works:
         width, height = Image.open(web_copy(w)).size
         if width / height <= WIDE_RATIO:
-            ratios.append(width / height)
-    return math.ceil((CARD - 2 * MAT) / min(ratios)) + 2 * MAT
+            shapes[w["id"]] = (width / height, math.sqrt(long_side_cm(w)))
+    def size(ratio, root, k):
+        long = k * root
+        return (long * ratio, long) if ratio < 1 else (long, long / ratio)
+    inner = CARD - 2 * MAT
+    k = min(inner / size(ratio, root, 1)[0] for ratio, root in shapes.values())
+    hung = {i: size(ratio, root, k) for i, (ratio, root) in shapes.items()}
+    return math.ceil(max(h for _, h in hung.values())) + 2 * MAT, hung
 
 
 def main():
     data = json.loads((ROOT / "works.json").read_text())
-    cards = "\n".join(card(w, data["statuses"]) for w in data["works"])
-    grid = f'<div class="grid" style="--mat-h: {mat_height(data["works"])}">\n'
+    mat_h, hung = hang(data["works"])
+    cards = "\n".join(card(w, data["statuses"], hung) for w in data["works"])
+    grid = f'<div class="grid" style="--mat-h: {mat_h}">\n'
 
     page = ROOT / "index.html"
     html = page.read_text()

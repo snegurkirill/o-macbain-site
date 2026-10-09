@@ -8,9 +8,9 @@
 
    One deliberate departure: the source crops every project image into a fixed
    202:459 box. Paintings cannot be cropped, so each work sits whole on a light
-   mat of one size instead. The mat is as short as it can be: build.py sizes it
-   so the narrowest work fits with 8px all round, which puts every portrait and
-   square work at the same width with 8px at its sides.
+   mat of one size instead, scaled by its real size: a bigger canvas reads
+   bigger (build.py grows a work's long side with the square root of its size
+   in cm). The mat is as short as the tallest work plus 8px above and below.
    --------------------------------------------------------------------------- */
 
 :root {
@@ -152,6 +152,14 @@ body {
   padding: calc(8 * var(--u));
   background: var(--mat);
   object-fit: contain;
+}
+
+/* A one-column work is shown by its real size: build.py writes its size on
+   screen (--w, --h, design px) and the padding centres it on the mat, so the
+   works hang on one centre line across a row. */
+.work img[style] {
+  padding: calc((var(--mat-h) - var(--h)) / 2 * var(--u))
+           calc((202 - var(--w)) / 2 * var(--u));
 }
 
 /* A horizontal work (ratio > 1.4: the 70×200 eyes and the landscape
