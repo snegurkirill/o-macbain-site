@@ -43,7 +43,8 @@
       "price": 30000,
       "image": "Works/03-svidetel-iz-fryazino.jpg",
       "sourceImage": "image3.jpg",
-      "status": null
+      "status": null,
+      "stretch": true
     },
     {
       "id": 4,

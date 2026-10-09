@@ -232,21 +232,35 @@ body {
 .bio a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
 
 /* --- filled grid (filled-images/) ----------------------------------------
-   Every work fills its card at its own height, no mat. A script packs the
-   cards into columns: with 1px rows and no row gap, each card spans its own
-   height plus the gap, and auto-placement puts it in the column that ends
-   first. A wide work still spans two columns.
+   Every work fills its card's width at its own height, no mat. Each card is
+   two rows of the grid (subgrid), so a row of images is as tall as its
+   tallest work, the works stand on its bottom edge and the captions below
+   start on one line. The row gap moves under the caption, or it would also
+   open between a work and its caption.
    ------------------------------------------------------------------------- */
 
+.grid--filled { row-gap: 0; }
+
+.grid--filled .work {
+  grid-row: span 2;
+  display: grid;
+  grid-template-rows: subgrid;
+}
+
 .grid--filled .work img {
+  align-self: end;
   height: auto;
   padding: 0;
   background: none;
 }
 
-.grid--filled.is-packed {
-  grid-auto-rows: 1px;
-  row-gap: 0;
+.grid--filled .work figcaption { padding-bottom: calc(34 * var(--u)); }
+
+/* "stretch": true in works.json: drawn to the row's full height. */
+.grid--filled .work--stretch img {
+  align-self: stretch;
+  height: 100%;
+  object-fit: fill;
 }
 
 /* --- desktop -------------------------------------------------------------

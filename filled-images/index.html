@@ -9,7 +9,7 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="O. MACBAIN — Ольга Макбейн">
 <meta property="og:description" content="Работы Ольги Макбейн: мемы как медиа-фольклор 21 века.">
-<link rel="stylesheet" href="../styles.css?v=6">
+<link rel="stylesheet" href="../styles.css?v=7">
 </head>
 <body>
 <div class="page">
@@ -37,7 +37,7 @@
             <span class="work__details">33×43 см, акрил, холст, рамка</span>
           </figcaption>
         </figure>
-        <figure class="work">
+        <figure class="work work--stretch">
           <img src="../assets/works/03-svidetel-iz-fryazino.jpg" alt="Свидетель (из Фрязино)" width="703" height="900" loading="lazy" decoding="async">
           <figcaption>
             <span class="work__title">Свидетель (из Фрязино)</span>
@@ -117,23 +117,5 @@
   </section>
 
 </div>
-<script>
-(() => {
-  const grid = document.querySelector(".grid--filled");
-  const cards = [...grid.children];
-  function pack() {
-    grid.classList.remove("is-packed");
-    cards.forEach(c => { c.style.gridRowEnd = ""; });
-    const gap = parseFloat(getComputedStyle(grid).rowGap) || 0;
-    grid.classList.add("is-packed");
-    cards.forEach(c => {
-      c.style.gridRowEnd = "span " + Math.ceil(c.getBoundingClientRect().height + gap);
-    });
-  }
-  pack();
-  addEventListener("resize", pack);
-  if (document.fonts) document.fonts.ready.then(pack);
-})();
-</script>
 </body>
 </html>

@@ -5,8 +5,11 @@ Only the cards between <div class="grid"> and its closing tag are rewritten;
 the head, masthead and bio stay hand-edited in the HTML.
 
 filled-images/index.html is the same page with the other grid: every work
-fills its card at its own height, no mat, and the cards pack into columns
-like a pinboard. It is made from index.html each run, never edited by hand.
+fills its card's width at its own height, no mat, in plain rows. It is made
+from index.html each run, never edited by hand.
+
+A work with "stretch": true in works.json is stretched to its row's height
+on that page.
 
 Web copies in assets/works/ are made from the originals in Works/ when they
 are missing or older than the original.
@@ -61,6 +64,8 @@ def card(work, statuses, hung):
     details = esc(f"{work['size']}, {work['medium']}").replace(" см", NB + "см")
     price = f"{work['price']:,}".replace(",", NB) + NB + "₽"
     wide = " work--wide" if w / h > WIDE_RATIO else ""
+    if work.get("stretch"):
+        wide += " work--stretch"
     scale = ""
     if work["id"] in hung:
         sw, sh = hung[work["id"]]
@@ -113,36 +118,12 @@ def hang(works):
     return math.ceil(max(h for _, h in hung.values())) + 2 * MAT, hung
 
 
-# Packs the cards into columns. Each card spans as many 1px grid rows as it is
-# tall, so the grid's own auto-placement drops it into the column that frees up
-# first. Without script the cards still show, in plain rows.
-PACK = """<script>
-(() => {
-  const grid = document.querySelector(".grid--filled");
-  const cards = [...grid.children];
-  function pack() {
-    grid.classList.remove("is-packed");
-    cards.forEach(c => { c.style.gridRowEnd = ""; });
-    const gap = parseFloat(getComputedStyle(grid).rowGap) || 0;
-    grid.classList.add("is-packed");
-    cards.forEach(c => {
-      c.style.gridRowEnd = "span " + Math.ceil(c.getBoundingClientRect().height + gap);
-    });
-  }
-  pack();
-  addEventListener("resize", pack);
-  if (document.fonts) document.fonts.ready.then(pack);
-})();
-</script>
-"""
-
-
 def filled_page(html):
     """index.html with the pinboard grid, one folder down."""
     html = re.sub(r'(src|href)="(?!https?:|#)([^"]+)"', r'\1="../\2"', html)
     html = re.sub(r'<div class="grid"[^>]*>', '<div class="grid grid--filled">', html)
     html = re.sub(r' style="--w: [^"]*"', "", html)
-    return html.replace("</body>", PACK + "</body>")
+    return html
 
 
 def main():
