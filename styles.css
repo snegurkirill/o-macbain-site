@@ -139,6 +139,15 @@ body {
 
 .bio__contacts { margin-top: calc(28 * var(--u)); }
 
+/* Portrait of the artist, a halftone print. One card wide, so it reads on the
+   same 202px column as the works below. */
+.bio__portrait {
+  display: block;
+  width: calc(202 * var(--u));
+  height: auto;
+  margin-bottom: calc(28 * var(--u));
+}
+
 .bio a { color: var(--link); text-decoration: none; }
 .bio a:hover { text-decoration: underline; }
 .bio a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
