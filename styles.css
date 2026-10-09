@@ -102,8 +102,8 @@ body {
 }
 
 /* --- masthead ------------------------------------------------------------
-   The hand-drawn title tile, then the artist's portrait, both across the
-   410px measure of the grid. On a phone the two fill the first screen with the
+   The hand-drawn title tile, then the artist's portrait, both as wide as the
+   screen allows, up to 450px. On a phone the two fill the first screen with the
    top of the works showing below; the text about the artist closes the page.
    ------------------------------------------------------------------------- */
 
@@ -114,12 +114,14 @@ body {
 
 .wordmark { margin: 0; }
 
-/* The tile is charcoal on white. multiply drops its white into the page, so
+/* Screen-wide inside the inset, but never past 450px on a tablet or desktop.
+   The tile is charcoal on white; multiply drops its white into the page, so
    no edge of the image shows. */
 .wordmark img,
 .portrait {
   display: block;
-  width: calc(410 * var(--u));
+  width: 100%;
+  max-width: 450px;
   height: auto;
 }
 .wordmark img { mix-blend-mode: multiply; }
